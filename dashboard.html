@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard da ONG</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Dashboard da ONG</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Cadastrar Animal</h2>
+        <form id="animal-form" onsubmit="return addAnimal()">
+            <label for="animal-name">Nome:</label>
+            <input type="text" id="animal-name" required>
+
+            <label for="animal-age">Idade:</label>
+            <select id="animal-age" required>
+                <option value="">Selecione a idade</option>
+                <option value="1">1 mês</option>
+                <option value="2">2 meses</option>
+                <option value="3">3 meses</option>
+                <option value="4">4 meses</option>
+                <option value="5">5 meses</option>
+                <option value="6">6 meses</option>
+                <option value="7">7 meses</option>
+                <option value="8">8 meses</option>
+                <option value="9">9 meses</option>
+                <option value="10">10 meses</option>
+                <option value="11">11 meses</option>
+                <option value="12">1 ano</option>
+                <option value="13">2 anos</option>
+                <option value="14">3 anos</option>
+                <option value="15">5 anos</option>
+                <option value="16">6 anos</option>
+                <option value="17">7 anos</option>
+                <option value="18">8 anos</option>
+                <option value="19">9 anos</option>
+                <option value="20">10 anos</option>
+                <option value="21">11 anos</option>
+                <option value="22">12 anos</option>
+                <option value="23">13 anos</option>
+                <option value="24">14 anos</option>
+            </select>
+
+            <label for="animal-breed">Raça:</label>
+            <input type="text" id="animal-breed" required>
+
+            <label for="animal-photo">Foto:</label>
+            <input type="file" id="animal-photo" accept="image/*" required onchange="previewImage(event)">
+            <img id="photo-preview" src="" alt="Pré-visualização" style="display:none; max-width: 200px; margin-top: 10px;">
+
+            <label for="animal-social">Sociável com outros animais?</label>
+            <select id="animal-social" required>
+                <option value="Sim">Sim</option>
+                <option value="Não">Não</option>
+            </select>
+
+            <label for="animal-description">Descrição:</label>
+            <textarea id="animal-description" required></textarea>
+
+            <button type="submit">Cadastrar Animal</button>
+        </form>
+
+        <h2>Animais Cadastrados</h2>
+        <div id="animal-list">
+            <p>Nenhum animal cadastrado.</p>
+        </div>
+
+        <div id="message" style="color: green;"></div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Adoção de Animais. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        
+        let animals = JSON.parse(localStorage.getItem('animals')) || [];
+
+        window.onload = function() {
+            updateAnimalList();
+        };
+
+        function addAnimal() {
+            const name = document.getElementById('animal-name').value;
+            const age = document.getElementById('animal-age').value;
+            const breed = document.getElementById('animal-breed').value;
+            const social = document.getElementById('animal-social').value;
+            const description = document.getElementById('animal-description').value;
+            const photoInput = document.getElementById('animal-photo');
+            const photoFile = photoInput.files[0];
+
+            if (!photoFile) {
+                alert('Por favor, selecione uma foto.');
+                return false;
+            }
+
+            const photoURL = URL.createObjectURL(photoFile);
+
+
+            const animal = {
+                name,
+                age,
+                breed,
+                social,
+                description,
+                photoURL
+            };
+
+            
+            animals.push(animal);
+            localStorage.setItem('animals', JSON.stringify(animals)); 
+            updateAnimalList(); 
+        
+            document.getElementById('animal-form').reset();
+            document.getElementById('photo-preview').style.display = 'none'; 
+            return false; 
+        }
+
+        function updateAnimalList() {
+            const animalListDiv = document.getElementById('animal-list');
+            animalListDiv.innerHTML = ''; 
+
+            if (animals.length === 0) {
+                animalListDiv.innerHTML = '<p>Nenhum animal cadastrado.</p>';
+                return;
+            }
+
+            
+            animals.forEach((animal, index) => {
+                const animalDiv = document.createElement('div');
+                animalDiv.classList.add('animal');
+
+                animalDiv.innerHTML = `
+                    <img src="${animal.photoURL}" alt="${animal.name}" style="max-width: 100px;">
+                    <p><strong>Nome:</strong> ${animal.name}</p>
+                    <p><strong>Idade:</strong> ${animal.age} meses</p>
+                    <p><strong>Raça:</strong> ${animal.breed}</p>
+                    <p><strong>Sociável:</strong> ${animal.social}</p>
+                    <p><strong>Descrição:</strong> ${animal.description}</p>
+                    <button onclick="removeAnimal(${index})">Remover</button>
+                `;
+                animalListDiv.appendChild(animalDiv);
+            });
+        }
+
+        function removeAnimal(index) {
+            animals.splice(index, 1); 
+            localStorage.setItem('animals', JSON.stringify(animals)); 
+            updateAnimalList(); 
+        }
+
+        function previewImage(event) {
+            const photoPreview = document.getElementById('photo-preview');
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function () {
+                photoPreview.src = reader.result;
+                photoPreview.style.display = 'block';
+            };
+
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
